@@ -1,0 +1,9 @@
+/* Colours the "Nearby" section needs on the home page.
+   (They normally come from room-layout.css, which only the room page loads.) */
+:root { --rd-line: #E8EDF3; --rd-chip: #F1F5F9; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rd-line: #26332C; --rd-chip: #1B2620; } }
+:root[data-theme="dark"] { --rd-line: #26332C; --rd-chip: #1B2620; }
+
+/* sits right under the rooms list */
+.nearby-sec { padding: 0 0 64px; }
+.nearby-sec .nb { margin-top: 0; }

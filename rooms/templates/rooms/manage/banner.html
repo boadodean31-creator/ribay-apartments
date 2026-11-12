@@ -1,0 +1,48 @@
+{% extends "rooms/manage/base.html" %}
+{% block title %}Home page banner · Ribay Apartments{% endblock %}
+{% block heading %}Home page banner{% endblock %}
+{% block subheading %}The big photo behind the headline at the top of your home page.{% endblock %}
+{% block body %}
+<div class="m-cols">
+  <div class="m-card">
+    <h2>{% if site.banner %}Current banner{% else %}No banner yet{% endif %}</h2>
+    {% if site.banner %}
+      <div class="m-banner-prev"><img src="{{ site.banner.url }}" alt="Current home page banner"></div>
+    {% else %}
+      <p class="m-muted">The home page shows the plain look until you add a photo.</p>
+      <div class="m-banner-prev empty">Preview appears here</div>
+    {% endif %}
+    {% if site.banner %}
+    <form method="post" action="{% url 'manage_banner_remove' %}" onsubmit="return confirm('Remove the banner photo?')" style="margin-top:14px">{% csrf_token %}
+      <button class="btn danger sm" type="submit">Remove banner</button>
+    </form>
+    {% endif %}
+  </div>
+
+  <form class="m-card" method="post" enctype="multipart/form-data" id="bannerform">{% csrf_token %}
+    <h2>{% if site.banner %}Replace the photo{% else %}Add a photo{% endif %}</h2>
+    <div class="m-field">
+      <label for="banner">Choose a photo</label>
+      <input id="banner" type="file" name="banner" accept="image/*" required>
+      <small>Best: a wide, bright photo of the building or a nice room, at least 1600 px wide. We shrink it automatically so the page stays fast. A soft fade in your site's colours is added on the left, so the headline stays easy to read in light and dark mode.</small>
+    </div>
+    <div class="m-preview" id="bpreview"></div>
+    <div class="m-save"><button class="btn pri" type="submit">Upload banner</button></div>
+  </form>
+</div>
+<script>
+  (function () {
+    var i = document.getElementById("banner"), box = document.getElementById("bpreview");
+    if (!i) return;
+    i.addEventListener("change", function () {
+      box.innerHTML = "";
+      var f = i.files[0];
+      if (!f || f.type.indexOf("image/") !== 0) return;
+      var img = document.createElement("img");
+      img.src = URL.createObjectURL(f);
+      img.style.cssText = "width:100%;max-width:420px;height:auto;aspect-ratio:16/7;object-fit:cover";
+      box.appendChild(img);
+    });
+  })();
+</script>
+{% endblock %}

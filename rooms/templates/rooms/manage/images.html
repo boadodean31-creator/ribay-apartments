@@ -1,0 +1,28 @@
+{% extends "rooms/manage/base.html" %}
+{% block title %}Page images · Ribay Apartments{% endblock %}
+{% block heading %}Page images{% endblock %}
+{% block subheading %}Replace the pictures in “How a viewing works” and “What to know before you move in”. Changes go live right away.{% endblock %}
+{% block body %}
+<div class="m-slots">
+  {% for s in slots %}
+  <div class="m-card m-slot">
+    <h2>{{ s.title }}</h2>
+    <p class="m-muted">{{ s.hint }}</p>
+    <div class="m-slot-prev{% if not s.wide %} contain{% endif %}{% if not s.image %} empty{% endif %}">
+      {% if s.image %}<img src="{{ s.image.url }}" alt="Current picture: {{ s.title }}">{% else %}Using the default{% endif %}
+    </div>
+    <form method="post" enctype="multipart/form-data" class="m-slot-form">{% csrf_token %}
+      <input type="hidden" name="slot" value="{{ s.field }}">
+      <input type="file" name="image" accept="image/*" required aria-label="Choose a picture for {{ s.title }}">
+      <button class="btn pri sm" type="submit">{% if s.image %}Replace{% else %}Upload{% endif %}</button>
+    </form>
+    {% if s.image %}
+    <form method="post" action="{% url 'manage_image_remove' %}" onsubmit="return confirm('Remove this picture and go back to the default?')" style="margin-top:10px">{% csrf_token %}
+      <input type="hidden" name="slot" value="{{ s.field }}">
+      <button class="btn danger sm" type="submit">Remove (use default)</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

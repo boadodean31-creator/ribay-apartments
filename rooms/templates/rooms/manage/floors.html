@@ -1,0 +1,32 @@
+{% extends "rooms/manage/base.html" %}
+{% block title %}Manage floors · Ribay Apartments{% endblock %}
+{% block heading %}Floors{% endblock %}
+{% block subheading %}Rename a floor, or add a new one. Floor names appear on room cards and the filter buttons.{% endblock %}
+{% block body %}
+<div class="m-card">
+  <h2>Add a floor</h2>
+  <form class="m-inline" method="post" action="{% url 'manage_floor_add' %}">{% csrf_token %}
+    <div class="m-field"><label for="id_number">Floor number</label>
+      <input id="id_number" type="number" name="number" placeholder="3" required></div>
+    <div class="m-field grow"><label for="id_name">Floor name</label>
+      <input id="id_name" type="text" name="name" maxlength="40" placeholder="3rd floor" required></div>
+    <button class="btn pri" type="submit">Add floor</button>
+  </form>
+</div>
+
+<div class="m-list" style="margin-top:20px">
+  {% for row in rows %}
+  <div class="m-row m-floorrow">
+    <div class="m-main"><strong>Floor {{ row.floor.number }}</strong>
+      <span class="m-muted">{{ row.rooms }} room{{ row.rooms|pluralize }}</span></div>
+    <form class="m-inline tight" method="post" action="{% url 'manage_floor_rename' row.floor.pk %}">{% csrf_token %}
+      <input type="text" name="name" value="{{ row.floor.name }}" maxlength="40" required aria-label="Name of floor {{ row.floor.number }}">
+      <button class="btn sm pri" type="submit">Save name</button>
+    </form>
+    <form method="post" action="{% url 'manage_floor_delete' row.floor.pk %}" onsubmit="return confirm('Delete {{ row.floor.name|escapejs }}?')">{% csrf_token %}
+      <button class="btn sm danger" type="submit" {% if row.rooms %}disabled title="Move or delete its rooms first"{% endif %}>Delete</button>
+    </form>
+  </div>
+  {% empty %}<div class="m-empty">No floors yet. Add your first floor above.</div>{% endfor %}
+</div>
+{% endblock %}

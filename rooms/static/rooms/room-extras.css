@@ -1,0 +1,133 @@
+/* Room page: simple "Other rooms" card + big "Nearby" section.
+   Loaded after room-layout.css, so it only restyles. Colours come from the site's own variables (light + dark mode). */
+
+/* ============ Other rooms (scrollable, soft grey card with white rows) ============ */
+.rd-similar {
+  padding: 22px 18px 16px 22px; border: 1px solid var(--rd-line); border-radius: 24px;
+  background: var(--rd-chip); box-shadow: none; overflow: hidden;
+}
+.sim-head { display: block; padding: 0 4px 16px 0; color: var(--ink); background: none; }
+.sim-head::before { display: none; }
+.sim-head h2 { margin: 0; color: var(--ink); font: 800 24px/1.1 "Bricolage Grotesque", "Instrument Sans", sans-serif; letter-spacing: -.02em; }
+.sim-head p { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+
+.sim-wrap { position: relative; }
+.sim-list {
+  max-height: min(540px, 64vh); overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 8px 0 0; gap: 10px; scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 45%, transparent) transparent;
+}
+.sim-list::-webkit-scrollbar { width: 6px; }
+.sim-list::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 99px; }
+.sim-wrap::after {
+  display: block; content: ""; position: absolute; left: 0; right: 8px; bottom: 0; height: 46px; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--rd-chip)); opacity: 0; transition: opacity .25s;
+}
+.sim-wrap.can-scroll::after { opacity: 1; }
+.sim-wrap.at-end::after { opacity: 0; }
+
+.sim-list li a {
+  gap: 12px; padding: 10px 12px 10px 10px; border: 1px solid var(--rd-line); border-radius: 18px;
+  background: var(--bg); box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+.sim-img { width: 58px; height: 58px; border-radius: 12px; }
+.sim-txt { gap: 2px; }
+.sim-txt b { font-size: 16px; }
+.sim-txt small { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.sim-row { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+.sim-row strong { font-size: 16px; font-weight: 700; }
+.sim-st {
+  font-style: normal; font-size: 11.5px; font-weight: 600; line-height: 1; padding: 5px 9px; border-radius: 999px;
+  color: var(--muted); background: var(--rd-chip);
+}
+.sim-st.open { color: var(--accent); background: var(--rd-mint-soft); }
+.sim-list li a.is-taken .sim-img img { filter: grayscale(.7); opacity: .7; }
+.sim-list li a.is-taken b, .sim-list li a.is-taken strong { color: var(--muted); }
+.sim-go { display: none; }
+.sim-all { justify-content: flex-start; padding: 16px 4px 2px; border-top: 0; font-size: 14px; }
+@media (max-width: 900px) { .sim-list { max-height: 420px; } }
+
+/* ============ Nearby (big pin + big text, one card per place) ============ */
+.nb { margin-top: clamp(56px, 7vw, 104px); }
+.nb-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px 48px; flex-wrap: wrap; margin-bottom: clamp(26px, 3vw, 40px); }
+.nb-eyebrow {
+  margin: 0 0 16px; color: #D93025; font: 500 13px/1 ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: .1em;
+}
+.nb h2 { margin: 0; font: 800 clamp(36px, 4.2vw, 64px)/1.03 "Bricolage Grotesque", "Instrument Sans", sans-serif; letter-spacing: -.025em; color: var(--ink); }
+.nb-lede { margin: 0; max-width: 36ch; color: var(--muted); font-size: clamp(16px, 1.2vw, 19px); line-height: 1.6; }
+
+.nb-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; }
+.nb-card {
+  display: flex; flex-direction: column; height: 100%; padding: 14px 14px 26px; border-radius: 30px; text-decoration: none; color: inherit;
+  background: var(--rd-chip); border: 1px solid var(--rd-line); transition: transform .3s cubic-bezier(.2, .7, .2, 1), box-shadow .3s, border-color .2s;
+}
+.nb-view {
+  position: relative; display: grid; place-items: center; height: clamp(230px, 22vw, 320px); margin-bottom: 26px; overflow: hidden;
+  border-radius: 20px; border: 1px solid var(--rd-line); background-color: var(--bg);
+  background-image: linear-gradient(var(--rd-line) 1px, transparent 1px), linear-gradient(90deg, var(--rd-line) 1px, transparent 1px);
+  background-size: 46px 46px; background-position: center;
+}
+/* two soft "roads" behind the pin so it reads as a map */
+.nb-view::before, .nb-view::after { content: ""; position: absolute; background: var(--rd-chip); border-radius: 99px; }
+.nb-view::before { left: -10%; right: -10%; top: 62%; height: 24px; transform: rotate(-14deg); }
+.nb-view::after { top: -10%; bottom: -10%; left: 30%; width: 20px; transform: rotate(8deg); }
+.nb-kind {
+  position: absolute; left: 16px; top: 16px; z-index: 3; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 11px;
+  border-radius: 999px; background: var(--bg); border: 1px solid var(--rd-line); color: var(--ink); font-size: 14px; font-weight: 600;
+  box-shadow: 0 6px 14px -10px rgba(15, 23, 42, .4);
+}
+.nb-kind svg { width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nb-ring {
+  position: absolute; z-index: 1; left: 50%; top: 56%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%;
+  background: rgba(234, 67, 53, .16); animation: nb-pulse 2.6s ease-out infinite;
+}
+.nb-pin { position: relative; z-index: 2; width: clamp(84px, 7.5vw, 112px); height: auto; margin-top: -8px; overflow: visible; filter: drop-shadow(0 12px 14px rgba(150, 30, 20, .28)); }
+.nb-body { fill: #EA4335; stroke: #C5221F; stroke-width: 1.2; stroke-linejoin: round; }
+.nb-dot { fill: #fff; }
+.nb-shadow { fill: rgba(15, 23, 42, .18); }
+.nb-hop { transform-box: fill-box; transform-origin: 50% 100%; transition: transform .35s cubic-bezier(.3, 1.6, .5, 1); }
+
+.nb-num { padding: 0 14px; color: #D93025; font: 500 13px/1 ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: .08em; }
+.nb-name { padding: 0 14px; margin-top: 14px; font: 800 clamp(24px, 2.1vw, 32px)/1.1 "Bricolage Grotesque", "Instrument Sans", sans-serif; letter-spacing: -.02em; color: var(--ink); }
+.nb-detail { padding: 0 14px; margin-top: 10px; color: var(--muted); font-size: clamp(16px, 1.2vw, 18px); line-height: 1.55; }
+.nb-open { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; margin-top: auto; padding-top: 22px; color: var(--accent); font-weight: 600; font-size: 15px; }
+.nb-open svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s; }
+
+@media (hover: hover) {
+  .nb-card:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--accent) 45%, var(--rd-line)); box-shadow: 0 28px 44px -30px rgba(15, 23, 42, .45); }
+  .nb-card:hover .nb-hop { transform: translateY(-9px); }
+  .nb-card:hover .nb-open svg { transform: translate(2px, -2px); }
+}
+.nb-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@keyframes nb-pulse { 0% { transform: scale(.55); opacity: .9; } 100% { transform: scale(1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .nb-ring { animation: none; opacity: .5; } .nb-card, .nb-hop { transition: none; } }
+@media (max-width: 560px) { .nb-card { border-radius: 24px; padding: 12px 12px 22px; } .nb-lede { max-width: none; } }
+
+/* make sure the card header and fade stay transparent in dark mode too */
+.rd-similar .sim-head { background: transparent; box-shadow: none; }
+.rd-similar .sim-wrap, .rd-similar .sim-list { background: transparent; }
+
+
+/* ---- Nearby cards with a real photo: the photo fills the frame, a smaller red pin sits in the corner ---- */
+.nb-photo { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+.nb-view.has-photo { background: var(--rd-chip); }
+.nb-view.has-photo::before { display: none; }
+.nb-view.has-photo::after { inset: 0; top: 0; bottom: 0; left: 0; width: auto; height: auto; transform: none; border-radius: 0; z-index: 1; background: linear-gradient(to top, rgba(8, 20, 15, .5), rgba(8, 20, 15, 0) 48%, rgba(8, 20, 15, .22)); }
+.nb-view.has-photo .nb-ring, .nb-view.has-photo .nb-shadow { display: none; }
+.nb-view.has-photo .nb-pin { position: absolute; z-index: 3; right: 18px; bottom: 14px; width: clamp(46px, 4vw, 60px); margin: 0; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, .45)); }
+.nb-view.has-photo .nb-body { stroke: #fff; stroke-width: 2.4; }
+@media (hover: hover) { .nb-card:hover .nb-photo { transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .nb-photo { transition: none; } }
+
+/* ---- "Open in Google Maps" button: same look as "Get directions" (compact, solid Google blue) ---- */
+.nb-detail { margin-bottom: 22px; }
+.nb-open {
+  align-self: flex-start; justify-content: flex-start; gap: 8px; margin: auto 14px 0; padding: 10px 16px; border-radius: 11px;
+  background: #1A73E8; border: 1px solid #1A73E8; color: #fff; font-size: 14.5px; font-weight: 600; text-shadow: none;
+  box-shadow: 0 12px 20px -12px rgba(26, 115, 232, .8);
+  transition: background .2s, border-color .2s, box-shadow .2s;
+}
+.nb-open svg { width: 17px; height: 17px; padding: 0; background: none; border-radius: 0; box-shadow: none; stroke: #fff; stroke-width: 2.2; }
+@media (hover: hover) { .nb-card:hover .nb-open { background: #1765CC; border-color: #1765CC; filter: none; } }
+@media (prefers-reduced-motion: reduce) { .nb-open { transition: none; } }

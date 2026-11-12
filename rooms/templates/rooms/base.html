@@ -1,0 +1,52 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}Ribay Apartments{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="{% static 'rooms/logo.svg' %}">
+<link rel="stylesheet" href="{% static 'rooms/style.css' %}">
+{% block head %}{% endblock %}
+<link rel="stylesheet" href="{% static 'rooms/mobile.css' %}?v=1">
+<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+{% block header %}<header><div class="nav-flora" aria-hidden="true"></div><div class="wrap nav">
+  <a class="logo" href="{% url 'home' %}"><span class="logo-mark" aria-hidden="true"><img src="{% static 'rooms/logo.svg' %}" alt="" width="38" height="38"></span><span class="logo-word">Ribay<b>Apartments</b></span></a>
+  <nav><a class="btn navpill" href="{% url 'home' %}#rooms"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18V8M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/></svg>Rooms</a><a class="btn navpill" href="{% url 'home' %}#location"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22.5S4.5 15.4 4.5 9.6a7.5 7.5 0 0 1 15 0c0 5.8-7.5 12.9-7.5 12.9z"/><circle cx="12" cy="9.6" r="2.8"/></svg>Location</a></nav>
+  {% if is_site_admin %}<a class="btn adminbtn" href="{% url 'manage_home' %}" title="Edit rooms, photos and floors"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span class="ab-txt">Manage site</span><span class="aw-badge" data-aw-count {% if not new_requests %}hidden{% endif %}>{{ new_requests }}</span></a>{% endif %}
+  <button class="btn icon" id="theme" aria-label="Switch to dark mode" title="Toggle dark mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"/></svg></button>
+  {% if user.is_authenticated %}
+  <a class="btn portal-link" href="{% url 'portal' %}"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>My portal</a>
+  <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}<button class="btn pri" type="submit">Log out</button></form>
+  {% else %}<a class="btn pri" href="{% url 'login' %}">Log in</a>{% endif %}
+  <button class="btn icon menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mnav"><svg class="b" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>{% if is_site_admin %}<span class="aw-badge m-badge" data-aw-count hidden></span>{% endif %}</button>
+</div>
+<nav class="m-panel" id="mnav" aria-label="Menu" hidden>
+  <a href="{% url 'home' %}#rooms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V8M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/></svg>Rooms</a>
+  <a href="{% url 'home' %}#location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22.5S4.5 15.4 4.5 9.6a7.5 7.5 0 0 1 15 0c0 5.8-7.5 12.9-7.5 12.9z"/></svg>Location</a>
+  {% if is_site_admin %}<a href="{% url 'manage_home' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>Manage site<span class="aw-badge" data-aw-count hidden></span></a>{% endif %}
+  {% if user.is_authenticated %}<a href="{% url 'portal' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>My portal</a>{% endif %}
+  <div class="m-sep"></div>
+  {% if user.is_authenticated %}<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn pri" type="submit">Log out</button></form>
+  {% else %}<a class="btn pri" href="{% url 'login' %}">Log in</a>{% endif %}
+</nav></header>{% endblock %}
+
+<main id="top">{% block content %}{% endblock %}</main>
+
+<footer><div class="wrap foot">
+  <div class="foot-brand"><span class="logo-mark" aria-hidden="true"><img src="{% static 'rooms/logo.svg' %}" alt="" width="38" height="38"></span>Ribay Apartments</div>
+  <nav class="foot-links" aria-label="Footer"><a href="{% url 'home' %}#rooms">Rooms</a><a href="{% url 'home' %}#location">Location</a><a href="#top">Back to top</a></nav>
+  <div class="foot-note">Cainta, Rizal &middot; &copy; {% now "Y" %} Ribay Apartments</div>
+</div></footer>
+
+
+<div class="toast" id="toast" role="status"></div>
+<script src="{% static 'rooms/app.js' %}"></script>
+{% if is_site_admin %}<script src="{% static 'rooms/adminwatch.js' %}" data-poll="{% url 'manage_requests_poll' %}" data-list="{% url 'manage_requests' %}" defer></script>{% endif %}
+{% block scripts %}{% endblock %}
+</body>
+</html>

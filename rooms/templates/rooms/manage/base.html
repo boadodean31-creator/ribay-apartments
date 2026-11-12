@@ -1,0 +1,38 @@
+{% extends "rooms/base.html" %}
+{% load static %}
+{% block head %}<link rel="stylesheet" href="{% static 'rooms/manage.css' %}">{% endblock %}
+{% block content %}
+<div class="m-wrap">
+  <div class="m-top">
+    <div>
+      <h1>{% block heading %}Manage website{% endblock %}</h1>
+      <p class="m-sub">{% block subheading %}Changes show on the public website right away. Only administrators can see this page.{% endblock %}</p>
+    </div>
+    <div class="m-actions">{% block actions %}{% endblock %}</div>
+  </div>
+
+  <nav class="m-tabs" aria-label="Manage sections">
+    <a href="{% url 'manage_home' %}" {% if tab == 'rooms' %}aria-current="page"{% endif %}>Rooms</a>
+    <a href="{% url 'manage_requests' %}" {% if tab == 'requests' %}aria-current="page"{% endif %}>Viewing requests<span class="m-tabbadge" data-aw-count {% if not new_requests %}hidden{% endif %}>{{ new_requests }}</span></a>
+    <a href="{% url 'manage_floors' %}" {% if tab == 'floors' %}aria-current="page"{% endif %}>Floors</a>
+    <a href="{% url 'manage_banner' %}" {% if tab == 'banner' %}aria-current="page"{% endif %}>Banner</a>
+    <a href="{% url 'manage_images' %}" {% if tab == 'images' %}aria-current="page"{% endif %}>Page images</a>
+    <a class="m-spacer" href="{% url 'home' %}" target="_blank" rel="noopener">View public website ↗</a>
+  </nav>
+
+  {% block body %}{% endblock %}
+</div>
+{% if messages %}
+<div class="m-toasts">
+  {% for m in messages %}
+  <div class="m-toast {{ m.level_tag }}" role="{% if m.level_tag == 'error' %}alert{% else %}status{% endif %}">
+    <span class="m-ico" aria-hidden="true">{% if m.level_tag == 'error' %}!{% else %}✓{% endif %}</span>
+    <span class="m-txt">{{ m }}</span>
+    <button type="button" class="m-x" aria-label="Dismiss">×</button>
+    <i class="m-bar" aria-hidden="true"></i>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+<script src="{% static 'rooms/manage.js' %}"></script>
+{% endblock %}

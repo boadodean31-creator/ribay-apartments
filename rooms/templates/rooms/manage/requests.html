@@ -1,0 +1,69 @@
+{% extends "rooms/manage/base.html" %}
+{% block title %}Viewing requests · Ribay Apartments{% endblock %}
+{% block heading %}Viewing requests{% endblock %}
+{% block subheading %}People who pressed “Book a viewing”. Contact them by phone or by the email they signed in with.{% endblock %}
+{% block body %}
+<div class="m-filter" role="tablist" aria-label="Filter requests">
+  {% for t in tabs %}
+  <a class="m-pill {% if t.key == status %}on{% endif %}" href="?status={{ t.key }}" {% if t.key == status %}aria-current="true"{% endif %}>{{ t.label }} <b>{{ t.count }}</b></a>
+  {% endfor %}
+</div>
+
+<div class="m-reqs" data-newest="{{ newest_id }}">
+  {% for r in items %}
+  <article class="m-req st-{{ r.status }}">
+    <div class="m-req-top">
+      <i class="m-av" aria-hidden="true">{{ r.name|slice:":1"|upper }}</i>
+      <div class="m-req-who">
+        <strong>{{ r.name }}</strong>
+        <span class="m-muted">Signed in with {{ r.provider_label }} · sent {{ r.created_at|timesince }} ago</span>
+      </div>
+      <span class="m-st {{ r.status }}">{{ r.get_status_display }}</span>
+    </div>
+
+    <div class="m-req-grid">
+      <div>
+        <span class="m-k">Room</span>
+        {% if r.room %}<a href="{% url 'manage_room_edit' r.room.pk %}">Room {{ r.room_number }}</a><span class="m-muted"> · {{ r.floor_name }}</span>{% else %}Room {{ r.room_number }} <span class="m-muted">(deleted)</span>{% endif %}
+      </div>
+      <div>
+        <span class="m-k">Wants to visit</span>
+        <strong>{{ r.preferred_date|date:"D, M j, Y" }}</strong>
+        <span class="m-muted"> · {{ r.get_preferred_slot_display }}</span>
+      </div>
+      <div>
+        <span class="m-k">Phone</span>
+        <a href="tel:{{ r.tel }}">{{ r.phone }}</a>
+      </div>
+      <div>
+        <span class="m-k">Email</span>
+        {% if r.email %}<a href="mailto:{{ r.email }}">{{ r.email }}</a>{% else %}<span class="m-muted">No email on this account. Use the phone number.</span>{% endif %}
+      </div>
+    </div>
+
+    {% if r.message %}<blockquote class="m-quote">{{ r.message }}</blockquote>{% endif %}
+
+    <div class="m-req-actions">
+      {% if r.email %}<a class="btn sm pri" href="{{ r.gmail_url }}" target="_blank" rel="noopener">Reply in Gmail</a>{% endif %}
+      <a class="btn sm" href="tel:{{ r.tel }}">Call</a>
+      <a class="btn sm" href="sms:{{ r.tel }}">Text</a>
+      <form class="m-statusform" method="post" action="{% url 'manage_request_status' r.pk %}">{% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <label class="m-muted" for="st-{{ r.pk }}">Status</label>
+        <select id="st-{{ r.pk }}" name="status" onchange="this.form.submit()">
+          {% for value, label in status_choices %}<option value="{{ value }}" {% if value == r.status %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </form>
+      <form method="post" action="{% url 'manage_request_delete' r.pk %}" onsubmit="return confirm('Delete this request from {{ r.name|escapejs }}?')">{% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <button class="btn sm danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </article>
+  {% empty %}
+  <div class="m-empty big">
+    {% if status == 'new' or status == 'all' %}No viewing requests yet. When someone presses “Book a viewing” on a room, it shows up here, and you get a pop-up.{% else %}Nothing here right now.{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

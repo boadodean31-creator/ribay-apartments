@@ -1,0 +1,122 @@
+{% comment %}The "Book a viewing" window. Opened by book.js. Contact details come from settings.py.{% endcomment %}
+<dialog class="bk" id="bk" aria-labelledby="bk-title" data-login="{% url 'login' %}?next={{ request.path|urlencode }}%3Fbook%3D1" data-auth="{% if user.is_authenticated %}1{% else %}0{% endif %}">
+  <button class="bk-close" type="button" aria-label="Close" data-bk-close>
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  <div class="bk-shell">
+
+    <aside class="bk-side">
+      <div class="bk-room">
+        {% if photos %}<img src="{{ photos.0.image.url }}" alt="">{% else %}<div class="bk-noimg"></div>{% endif %}
+        <div>
+          <strong>Room {{ room.number }}</strong>
+          <span>{{ room.get_floor_display }} · {{ room.room_type }}</span>
+          <b>₱{{ room.rent|floatformat:"0g" }} <small>/ month</small></b>
+        </div>
+      </div>
+
+      <div class="bk-contact">
+        <span class="bk-label">Our staff</span>
+        <div class="bk-person">
+          <i class="bk-avatar" aria-hidden="true">{{ contact_initials }}</i>
+          <div><strong>{{ contact_staff }}</strong><span>{{ contact_role }}</span></div>
+        </div>
+        <div class="bk-phone">
+          <span class="bk-label">Call or text us</span>
+          <a class="bk-num" href="tel:{{ contact_tel }}">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+            <span>{{ contact_phone }}</span>
+          </a>
+        </div>
+        <p class="bk-hours"><span class="bk-label">Viewing hours</span>{{ viewing_hours }}</p>
+      </div>
+
+      <ol class="bk-steps">
+        <li><b>1</b><span>Send your request</span></li>
+        <li><b>2</b><span>{{ contact_staff }} contacts you to confirm</span></li>
+        <li><b>3</b><span>Visit the room. No payment needed.</span></li>
+      </ol>
+    </aside>
+
+    <div class="bk-main">
+      {% if user.is_authenticated %}
+      <form id="bk-form" method="post" action="{% url 'book_viewing' room.number %}" novalidate data-min="{{ book_min }}" data-max="{{ book_max }}">
+        {% csrf_token %}
+        <div class="bk-head">
+          <h2 id="bk-title">Book a viewing</h2>
+          <p>Choose a day and time. We will confirm by phone or email.</p>
+        </div>
+
+        <div class="bk-field">
+          <label for="bk-name">Your name</label>
+          <input id="bk-name" name="name" type="text" autocomplete="name" maxlength="80" value="{{ prefill_name }}" required>
+          <small class="bk-err" data-for="name"></small>
+        </div>
+        <div class="bk-field">
+          <label for="bk-phone">Mobile number</label>
+          <input id="bk-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0995-056-4761" maxlength="30" value="{{ prefill_phone }}" required>
+          <small class="bk-err" data-for="phone"></small>
+        </div>
+        {% if not user.email %}
+        <div class="bk-field">
+          <label for="bk-email">Email <em>(optional)</em></label>
+          <input id="bk-email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
+          <small class="bk-err" data-for="email"></small>
+        </div>
+        {% endif %}
+
+        <fieldset class="bk-field">
+          <legend>Day of visit</legend>
+          <div class="bk-days" id="bk-days" role="radiogroup" aria-label="Pick a day"></div>
+          <label class="bk-or" for="bk-date">or pick another date</label>
+          <input id="bk-date" name="preferred_date" type="date" min="{{ book_min }}" max="{{ book_max }}" required>
+          <small class="bk-err" data-for="preferred_date"></small>
+        </fieldset>
+
+        <fieldset class="bk-field">
+          <legend>Time</legend>
+          <div class="bk-slots">
+            {% for value, label in slots %}
+            <label class="bk-slot"><input type="radio" name="preferred_slot" value="{{ value }}" required><span>{{ label }}</span></label>
+            {% endfor %}
+          </div>
+          <small class="bk-err" data-for="preferred_slot"></small>
+        </fieldset>
+
+        <div class="bk-field">
+          <label for="bk-msg">Message <em>(optional)</em></label>
+          <textarea id="bk-msg" name="message" rows="2" maxlength="500" placeholder="Anything we should know? For example, how many people will move in."></textarea>
+        </div>
+
+        <p class="bk-error" id="bk-error" role="alert" hidden></p>
+
+        <button class="btn pri wide bk-submit" type="submit"><span class="bk-lbl">Send request</span><span class="bk-spin" aria-hidden="true"></span></button>
+        <p class="bk-fine">Signed in as <b>{{ user.email|default:user.get_username }}</b>. Our staff may reply there.</p>
+      </form>
+
+      <div class="bk-done" id="bk-done" hidden tabindex="-1">
+        <svg class="bk-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M15 27l8 8 15-17"/></svg>
+        <h2>Request sent!</h2>
+        <p>Thank you, <b id="bk-d-name"></b>. {{ contact_staff }} will contact you soon to confirm your visit.</p>
+        <dl class="bk-sum">
+          <div><dt>Room</dt><dd>Room {{ room.number }} · {{ room.get_floor_display }}</dd></div>
+          <div><dt>Day</dt><dd id="bk-d-date"></dd></div>
+          <div><dt>Time</dt><dd id="bk-d-slot"></dd></div>
+        </dl>
+        <p class="bk-small">Need it sooner? Call or text <a href="tel:{{ contact_tel }}">{{ contact_phone }}</a>.</p>
+        <div class="bk-btns center">
+          <button class="btn pri" type="button" data-bk-close>Done</button>
+        </div>
+      </div>
+      {% else %}
+      <div class="bk-login">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="21" width="30" height="21" rx="4"/><path d="M16 21v-6a8 8 0 0 1 16 0v6"/><circle cx="24" cy="31" r="2.5"/></svg>
+        <h2 id="bk-title">Sign in to book</h2>
+        <p>Sign in with Google so our staff can reach you about your visit. It takes a few seconds, and we only use your name and email.</p>
+        <a class="btn pri wide" href="{% url 'login' %}?next={{ request.path|urlencode }}%3Fbook%3D1">Continue to sign in</a>
+        <p class="bk-small">Prefer to talk first? Call or text {{ contact_staff }} at <a href="tel:{{ contact_tel }}">{{ contact_phone }}</a>.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</dialog>

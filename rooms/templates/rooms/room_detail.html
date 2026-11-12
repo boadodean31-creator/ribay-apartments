@@ -1,0 +1,290 @@
+{% extends "rooms/base.html" %}
+{% block title %}Room {{ room.number }} · Ribay Apartments{% endblock %}
+{% load static %}
+{% block head %}<meta name="format-detection" content="telephone=no"><link rel="stylesheet" href="{% static 'rooms/booking.css' %}"><link rel="stylesheet" href="{% static 'rooms/detail.css' %}"><link rel="stylesheet" href="{% static 'rooms/room-layout.css' %}?v=21"><link rel="stylesheet" href="{% static 'rooms/room-extras.css' %}?v=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="{% static 'rooms/room-top.css' %}?v=1"><link rel="stylesheet" href="{% static 'rooms/room-swap.css' %}?v=1"><link rel="stylesheet" href="{% static 'rooms/location-dialog.css' %}?v=2"><link rel="stylesheet" href="{% static 'rooms/room-mobile.css' %}?v=1">{% endblock %}
+{% block header %}
+<header class="rn">
+  <div class="rn-in">
+    <a class="rn-back" href="{% url 'home' %}#rooms" aria-label="Back to all rooms" title="Back to all rooms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <span class="rn-title" aria-hidden="true">Room {{ room.number }}</span>
+    <div class="rd-acts rn-acts" data-room="{{ room.number }}">
+      <button class="rd-act rd-act-share" type="button" aria-label="Share this room"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7.5 7.5L12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share</span></button>
+      <button class="rd-act rd-act-save" type="button" aria-label="Save this room" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5S3.5 15 3.5 9A4.7 4.7 0 0 1 12 6.6 4.7 4.7 0 0 1 20.5 9c0 6-8.5 11.5-8.5 11.5z"/></svg><span>Save</span></button>
+    </div>
+    <nav class="rn-links" aria-label="Jump to a section">
+      <a class="rn-pill" href="#contact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Contact</span></a>
+      <a class="rn-pill" href="#good-to-know"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.2 6.2 0 0 0-3.6 11.3c.7.5 1.1 1.3 1.1 2.2V17h5v-.5c0-.9.4-1.7 1.1-2.2A6.2 6.2 0 0 0 12 3z"/></svg><span>Good to know</span></a>
+      <a class="rn-pill" href="#location" data-open-location><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg><span>Location</span></a>
+      <span class="rn-sep" aria-hidden="true"></span>
+      {% if user.is_authenticated %}<form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}<button class="rn-cta" type="submit">Log out</button></form>
+      {% else %}<a class="rn-cta" href="{% url 'login' %}">Log in</a>{% endif %}
+    </nav>
+  </div>
+</header>
+{% endblock %}
+{% block content %}
+<div class="wrap rd">
+  <div class="rd-top">
+    <div class="rd-acts rd-acts-top" data-room="{{ room.number }}">
+      <button class="rd-act rd-act-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7.5 7.5L12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Share</button>
+      <button class="rd-act rd-act-save" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5S3.5 15 3.5 9A4.7 4.7 0 0 1 12 6.6 4.7 4.7 0 0 1 20.5 9c0 6-8.5 11.5-8.5 11.5z"/></svg><span>Save</span></button>
+    </div>
+  </div>
+  <div class="detail{% if photos %} has-mosaic{% endif %}">
+    <div class="rd-hero">
+      <div class="rd-hero-head">
+        <div class="rd-hero-id">
+        <span class="rd-status badge {% if room.status != 'available' %}busy{% endif %}">{{ room.get_status_display }}</span>
+        <p class="rd-ttl" aria-hidden="true">Room {{ room.number }}</p>
+        <p class="rd-meta" aria-hidden="true">{{ room.get_floor_display }} · {{ room.room_type }}</p>
+        <p class="rd-where"><svg class="rd-where-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg><span class="rd-where-txt"><b>{{ short_address }}</b>{% if landmark %}<span class="rd-where-lm">{{ landmark }}</span>{% endif %}</span><a class="rd-where-go" href="#location" data-loc-link>Show map</a></p>
+        </div>
+        <div class="rd-acts rd-acts-hero" data-room="{{ room.number }}">
+      <button class="rd-act rd-act-share" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7.5 7.5L12 3l4.5 4.5M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>Share</button>
+      <button class="rd-act rd-act-save" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5S3.5 15 3.5 9A4.7 4.7 0 0 1 12 6.6 4.7 4.7 0 0 1 20.5 9c0 6-8.5 11.5-8.5 11.5z"/></svg><span>Save</span></button>
+    </div>
+      </div>
+      {% if photos %}{% with n=photos|length %}
+      <section class="rd-mosaic {% if n >= 5 %}n5{% else %}n{{ n }}{% endif %}" id="photos" aria-label="Photos of Room {{ room.number }}">
+        {% for p in photos|slice:":5" %}<button type="button" class="mo" data-k="{{ forloop.counter0 }}" aria-label="Open photo {{ forloop.counter }} of {{ n }}"><img src="{{ p.image.url }}" alt="Room {{ room.number }} photo {{ forloop.counter }}"{% if forloop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %}></button>{% endfor %}
+        {% if n > 1 %}<button type="button" class="mo-all" data-k="0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h4v4H4zM10 4h4v4h-4zM16 4h4v4h-4zM4 10h4v4H4zM10 10h4v4h-4zM16 10h4v4h-4zM4 16h4v4H4zM10 16h4v4h-4zM16 16h4v4h-4z"/></svg>Show all photos</button>{% endif %}
+      </section>
+      {% endwith %}{% endif %}
+    </div>
+    <aside class="rd-lcol" aria-label="Room facts">
+      {% include "rooms/_glance.html" with extra_class="rd-glance-wide" %}
+
+      <nav class="rd-card rd-qnav" aria-label="Jump to a section">
+        <h2 class="rd-ct">Quick nav</h2>
+        <ul>
+          <li><a href="#photos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10.5" r="1.6"/><path d="M21 16l-5-4.5-8 7"/></svg>Photos</a></li>
+          <li><a href="#pricing"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21V4h5a4 4 0 0 1 0 8H8M5 8h11M5 11h11"/></svg>Pricing</a></li>
+          <li><a href="#contact"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Contact</a></li>
+          <li><a href="#good-to-know"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.2 6.2 0 0 0-3.6 11.3c.7.5 1.1 1.3 1.1 2.2V17h5v-.5c0-.9.4-1.7 1.1-2.2A6.2 6.2 0 0 0 12 3z"/></svg>Good to know</a></li>
+          <li><a href="#location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Location</a></li>
+        </ul>
+        {% if room.status == 'available' %}<button class="btn pri wide qn-book" type="button" data-book>Book a viewing</button>{% endif %}
+      </nav>
+    </aside>
+
+    <div class="rd-left">
+    <div class="rd-gallery" id="{% if photos %}photos-m{% else %}photos{% endif %}">
+      {% if photos %}
+        <div class="main">
+          <img id="mainimg" src="{{ photos.0.image.url }}" alt="Room {{ room.number }} photo 1">
+          {% if photos|length > 1 %}
+          <button type="button" class="g-nav g-prev" aria-label="Previous photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button type="button" class="g-nav g-next" aria-label="Next photo"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" class="g-play" aria-label="Pause slideshow" aria-pressed="false"><svg class="i-pause" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="i-play" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
+          <span class="g-count">1 / {{ photos|length }}</span>
+          <i class="g-bar" aria-hidden="true"></i>
+          {% endif %}
+        </div>
+        {% if photos|length > 1 %}
+        <div class="thumbs">
+          {% for p in photos %}<button type="button" data-src="{{ p.image.url }}" aria-label="Show photo {{ forloop.counter }}"><img src="{{ p.image.url }}" alt=""></button>{% endfor %}
+        </div>
+        {% endif %}
+      {% else %}
+        <div class="main"><div class="ph" style="aspect-ratio:4/3"></div></div>
+        <p class="meta">No photos yet.{% if is_site_admin %} <a href="{% url 'manage_room_edit' room.pk %}">Add photos</a>{% endif %}</p>
+      {% endif %}
+    </div>
+    <section class="rd-card rd-contact acc" id="contact"{% if is_site_admin %} data-save-url="{% url 'manage_contact' %}"{% endif %}>
+      <h2 class="acc-h"><button type="button" class="acc-btn" id="contact-title" aria-expanded="false" aria-controls="contact-panel">
+        <span class="rd-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg></span>
+        <span class="acc-txt"><small class="acc-kicker">Contact us</small><b data-c="name">{{ contact_staff }}</b><small data-c="role">{{ contact_role }}</small></span>
+        <span class="acc-hint" aria-hidden="true"><span class="h-open">View</span><span class="h-close">Hide</span></span>
+        <span class="acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </button></h2>
+      <div class="acc-panel" id="contact-panel" role="region" aria-labelledby="contact-title"><div class="acc-in"><div class="acc-body">
+      {% if is_site_admin %}<div class="rc-adminbar"><button type="button" class="rc-edit" aria-expanded="false" aria-controls="rc-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Edit contact card</span></button></div>{% endif %}
+      <!-- The number is plain text on purpose (not a link), so it can't be tapped to dial. -->
+      <div class="rc-phone">
+        <span class="rc-phone-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+        <div><small>Contact number</small><b data-c="phone">{{ contact_phone }}</b></div>
+      </div>
+
+      <ul class="rc-facts">
+        <li><span class="rc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><small>Viewing hours</small><b data-c="hours">{{ viewing_hours }}</b></div></li>
+        <li><span class="rc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><div><small>Replies</small><b data-c="reply">{{ contact_reply }}</b></div></li>
+        <li><span class="rc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9S14.6 18.4 12 21c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg></span><div><small>Languages</small><b data-c="languages">{{ contact_languages }}</b></div></li>
+      </ul>
+
+      <p class="rc-note"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span>Want to see the room? Tap <b>Book a viewing</b> and <span data-c="name">{{ contact_staff }}</span> will contact you.</span></p>
+
+      {% if is_site_admin %}
+      <div class="rc-panel" id="rc-panel"><div class="rc-panel-in">
+        <form class="rc-form" method="post" action="{% url 'manage_contact' %}" novalidate>{% csrf_token %}
+          <p class="rc-form-title">Edit contact card <span>Only admins see this. Leave a box empty to use the default.</span></p>
+          <div class="rc-grid">
+            <label>Staff name<input name="contact_name" maxlength="60" value="{{ contact_staff }}" required></label>
+            <label>Role<input name="contact_role" maxlength="60" value="{{ contact_role }}"></label>
+            <label class="full">Contact number<input name="contact_phone" maxlength="30" inputmode="tel" value="{{ contact_phone }}" placeholder="0917 123 4567"></label>
+            <label>Viewing hours<input name="contact_hours" maxlength="80" value="{{ viewing_hours }}"></label>
+            <label>Reply time<input name="contact_reply" maxlength="80" value="{{ contact_reply }}"></label>
+            <label class="full">Languages<input name="contact_languages" maxlength="80" value="{{ contact_languages }}"></label>
+          </div>
+          <p class="rc-err" role="alert" hidden></p>
+          <div class="rc-actions"><button type="button" class="btn rc-cancel">Cancel</button><button type="submit" class="btn pri rc-save">Save changes</button></div>
+        </form>
+      </div></div>
+      {% endif %}
+      </div></div></div>
+    </section>
+      <section class="amen acc" id="good-to-know">
+        {% include "rooms/_icons.html" %}
+        <h2 class="acc-h"><button type="button" class="acc-btn" id="amen-title" aria-expanded="false" aria-controls="amen-panel">
+          <span class="acc-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg></span>
+          <span class="acc-txt"><b>Good to know</b><small>{{ room_amenities|length }} inclusions · {{ house_rules|length }} house rules</small></span>
+          <span class="acc-hint" aria-hidden="true"><span class="h-open">View</span><span class="h-close">Hide</span></span>
+          <span class="acc-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+        </button></h2>
+        <div class="acc-panel" id="amen-panel" role="region" aria-labelledby="amen-title"><div class="acc-in"><div class="acc-body">
+          <h3 class="amen-sub">Included with your room</h3>
+          <ul class="amen-grid">
+            {% for a in room_amenities %}
+            <li><span class="amen-ico"><svg class="ico" aria-hidden="true"><use href="#i-{{ a.icon }}"/></svg></span><div><strong>{{ a.title }}</strong><span>{{ a.text }}</span></div></li>
+            {% endfor %}
+          </ul>
+          <h3 class="amen-sub">House rules</h3>
+          <ul class="rules">
+            {% for r in house_rules %}
+            <li><span class="rule-ico"><svg class="ico" aria-hidden="true"><use href="#i-{{ r.icon }}"/></svg></span><div><strong>{{ r.title }}</strong><span>{{ r.text }}</span></div></li>
+            {% endfor %}
+          </ul>
+        </div></div></div>
+      </section>
+      <script>(function(){var a=document.getElementById("good-to-know");if(a&&window.matchMedia("(min-width:901px)").matches){a.classList.add("open");var b=a.querySelector(".acc-btn");if(b)b.setAttribute("aria-expanded","true");}})();</script>
+      {% include "rooms/_glance.html" with extra_class="rd-glance-inline" %}
+    </div>
+
+    {% if sleep_spaces or bath_spaces or is_site_admin %}
+    <div class="rd-spaces-col">
+      {% include "rooms/_spaces.html" with sid="sleep" heading="Where you’ll sleep" items=sleep_spaces icon_path="M3 18V8M3 14h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5" %}
+      {% include "rooms/_spaces.html" with sid="restroom" heading="Restroom" items=bath_spaces icon_path="M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM6 12V6a2 2 0 0 1 4 0M7 19l-1 2M17 19l1 2" %}
+    </div>
+    {% endif %}
+
+    {% if embed or room.video_url %}
+    <section class="rd-video" id="video-tour" aria-label="Video tour">
+      <h2 class="rv-title">Video tour</h2>
+      {% if embed %}<div class="video"><iframe src="{{ embed }}?enablejsapi=1&mute=1&playsinline=1&rel=0" title="Room {{ room.number }} video tour" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      {% else %}<p><a class="btn" href="{{ room.video_url }}" target="_blank" rel="noopener">Watch the video</a></p>{% endif %}
+    </section>
+    {% endif %}
+
+    <aside class="rd-side">
+      <div class="rd-sidemain">
+      <div class="rd-stick">
+      <section class="rd-card rd-book" aria-label="Room summary">
+        <div class="rd-head"><h1>Room {{ room.number }}</h1><span class="badge {% if room.status != 'available' %}busy{% endif %}">{{ room.get_status_display }}</span></div>
+        <div class="rd-chips">
+          <span class="rd-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M10 21v-4h4v4"/></svg>{{ room.get_floor_display }}</span>
+          <span class="rd-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 11V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3"/><path d="M3 13a2 2 0 0 1 4 0v1h10v-1a2 2 0 0 1 4 0v5H3z"/><path d="M5 18v2M19 18v2"/></svg>{{ room.room_type }}</span>
+        </div>
+        <p class="rd-where rd-where-card"><svg class="rd-where-pin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg><span class="rd-where-txt"><b>{{ short_address }}</b>{% if landmark %}<span class="rd-where-lm">{{ landmark }}</span>{% endif %}</span><a class="rd-where-go" href="#location" data-loc-link>Show map</a></p>
+        {% if room_features %}<ul class="rd-feats" aria-label="Room highlights">{% for f in room_features %}<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="{{ f.path }}"/></svg><span>{{ f.label }}</span></li>{% endfor %}</ul>{% endif %}
+        <div class="rd-price" id="pricing"><span class="rd-plabel">Monthly rental</span><span class="price big">₱{{ room.rent|floatformat:"0g" }} <small>/ month</small></span></div>
+        {% if room.status == 'available' %}
+          <button class="btn pri wide rd-cta" type="button" data-book><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M8 2.8v3.4M16 2.8v3.4M3.5 9.5h17"/><path d="M8.6 15l2.4 2.4 4.4-4.6"/></svg>Book a viewing</button>
+        {% else %}
+          <button class="btn wide rd-cta" disabled>This room is occupied</button>
+        {% endif %}
+        {% if is_site_admin %}<a class="btn wide adminbtn rd-edit" href="{% url 'manage_room_edit' room.pk %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Edit this room</a>{% endif %}
+      </section>
+
+      <section class="rd-card rd-loc" id="location" aria-labelledby="loc-title">
+        <h2 id="loc-title"><span class="rd-pin" aria-hidden="true"><svg viewBox="0 0 24 32"><ellipse class="pin-shadow" cx="12" cy="28" rx="5.2" ry="1.7"/><g class="pin-hop"><path class="pin-body" d="M12 24.5S4.5 17.4 4.5 11.6a7.5 7.5 0 0 1 15 0c0 5.8-7.5 12.9-7.5 12.9z"/><circle class="pin-dot" cx="12" cy="11.6" r="2.9"/></g></svg></span>Location</h2>
+        <div class="locmap">
+          <iframe src="{{ map_embed }}" title="Map showing where the apartment is" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <span class="rd-street" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg><b></b></span>
+        </div>
+        <p class="locaddr">{{ address }}<span>{{ landmark }}</span></p>
+        <div class="rd-locbtns">
+          <a class="btn" href="{{ map_link }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Open in Google Maps</a>
+          <a class="btn pri" href="{{ map_dir }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 18-8-4-8 4z"/></svg>Get directions</a>
+        </div>
+      </section>
+      </div>
+      </div>
+
+      <div class="rd-xcol">
+      {% if other_rooms %}
+      <section class="rd-card rd-similar" aria-labelledby="sim-title">
+        <header class="sim-head">
+          <h2 id="sim-title">Other rooms</h2>
+          <p>{{ other_open }} available{% if other_taken %} &middot; {{ other_taken }} taken{% endif %}</p>
+        </header>
+        <div class="sim-wrap">
+          <ul class="sim-list" tabindex="0" aria-label="Other rooms, scroll to see more">
+            {% for r in other_rooms %}
+            <li><a href="{% url 'room_detail' r.number %}"{% if r.status != 'available' %} class="is-taken"{% endif %}>
+              <span class="sim-img">{% if r.cover_url %}<img src="{{ r.cover_url }}" alt="" loading="lazy">{% endif %}</span>
+              <span class="sim-txt">
+                <b>Room {{ r.number }}</b>
+                <small>{{ r.get_floor_display }} &middot; {{ r.room_type }}</small>
+                <span class="sim-row"><strong>&#8369;{{ r.rent|floatformat:"0g" }}</strong><em class="sim-st {% if r.status == 'available' %}open{% endif %}">{% if r.status == 'available' %}Available{% else %}Taken{% endif %}</em></span>
+              </span>
+              <svg class="sim-go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        <a class="sim-all" href="{% url 'home' %}#rooms">See the whole building <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </section>
+      {% endif %}
+      </div>
+    </aside>
+  </div>
+
+
+
+</div>
+
+{% if room.status == 'available' %}
+<div class="rd-bar" role="region" aria-label="Book a viewing">
+  <div class="rd-bar-price"><strong>₱{{ room.rent|floatformat:"0g" }}</strong><span>per month</span></div>
+  <button class="btn pri rd-bar-cta" type="button" data-book>Book a viewing</button>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}<dialog class="loc-dlg" id="locdlg" aria-labelledby="loc-title">
+  <div class="loc-card">
+    <button class="loc-x" type="button" data-loc-close aria-label="Close location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="loc-map">
+      <iframe data-src="{{ map_embed }}" title="Map showing the apartment location" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <span class="loc-chip"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 22.5S4.5 15.4 4.5 9.6a7.5 7.5 0 0 1 15 0c0 5.8-7.5 12.9-7.5 12.9z"/><circle cx="12" cy="9.6" r="2.7" fill="#fff"/></svg>{{ short_address }}</span>
+    </div>
+    <div class="loc-body">
+      <p class="loc-eyebrow">LOCATION</p>
+      <h2 id="loc-title">A quiet street,<br>everything within reach.</h2>
+      <p class="loc-desc">{{ area_about }}</p>
+      <ul class="loc-facts">
+        <li><span class="loc-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><small>Address</small><strong>{{ address }}</strong></div></li>
+        <li><span class="loc-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4h9l-1 4 1 4H5"/></svg></span><div><small>Landmark</small><strong>{{ landmark }}</strong></div></li>
+        {% if viewing_hours %}<li><span class="loc-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span><div><small>Viewings</small><strong>{{ viewing_hours }}</strong></div></li>{% endif %}
+      </ul>
+      {% if landmarks %}
+      <h3 class="loc-sub">Nearby</h3>
+      <ul class="loc-near">
+        {% for p in landmarks %}
+        <li><a href="{{ p.url }}" target="_blank" rel="noopener">
+          <span class="loc-thumb">{% if p.image %}<img src="{% static p.image %}" alt="" loading="lazy">{% else %}<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 22.5S4.5 15.4 4.5 9.6a7.5 7.5 0 0 1 15 0c0 5.8-7.5 12.9-7.5 12.9z"/><circle cx="12" cy="9.6" r="2.7" fill="#fff"/></svg>{% endif %}</span>
+          <span class="loc-nt"><b>{{ p.name }}</b><small>{{ p.detail }}</small></span>
+          <svg class="loc-out" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      <div class="loc-cta">
+        <a class="loc-btn blue" href="{{ map_dir }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 17-7-4-7 4z"/></svg>Get directions</a>
+        <a class="loc-btn" href="{{ map_link }}" target="_blank" rel="noopener">Open in Google Maps</a>
+        <a class="loc-btn" href="tel:{{ contact_tel }}">Call {{ contact_phone }}</a>
+        <button class="loc-btn" type="button" data-loc-copy="{{ address }}"><span class="t">Copy address</span></button>
+      </div>
+    </div>
+  </div>
+</dialog>
+<script src="{% static 'rooms/location-dialog.js' %}?v=2" defer></script>
+<script src="{% static 'rooms/room-layout.js' %}?v=13" defer></script><script src="{% static 'rooms/gallery.js' %}?v=5" defer></script><script src="{% static 'rooms/room-actions.js' %}?v=2" defer></script><script src="{% static 'rooms/spaces.js' %}?v=1" defer></script><script src="{% static 'rooms/mosaic.js' %}?v=1" defer></script><script src="{% static 'rooms/lightbox.js' %}?v=1" defer></script>{% if embed %}<script src="{% static 'rooms/video-autoplay.js' %}" defer></script>{% endif %}{% if room.status == 'available' %}{% include "rooms/book_dialog.html" %}<script src="{% static 'rooms/book.js' %}" defer></script>{% endif %}{% endblock %}

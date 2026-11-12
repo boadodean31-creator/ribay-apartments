@@ -1,0 +1,26 @@
+/* Room page: Video tour sits in the main column (beside the Location card), "Other rooms" runs full width below.
+   The right column (price + Location) stays pinned while you scroll past the video. Loaded after room-top.css. */
+.rd .rd-video { min-width: 0; }
+.rd .rd-video .rv-title { margin: 0 0 16px; font: 800 24px/1.1 "Bricolage Grotesque", "Instrument Sans", sans-serif; letter-spacing: -.02em; color: var(--ink); }
+.rd .rd-video .video { width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden; border: 1px solid var(--rd-line, var(--line)); background: #000; }
+.rd .rd-video .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+@media (min-width: 901px) {
+  .rd .detail {
+    grid-template-areas: "hero side" "main side" "spaces side" "video side" "xcol xcol";
+  }
+  .rd-video { grid-area: video; }
+  .rd-xcol { margin-top: 24px; }
+  .rd-xcol .sim-list { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+/* the right column follows while scrolling (the stacked layout is used on short screens, so only pin when it fits) */
+@media (min-width: 901px) and (min-height: 600px) {
+  .rd-sidemain { position: static; align-self: stretch; }
+  .rd-stick { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 16px; }
+}
+@media (max-width: 900px) {
+  .rd-stick { display: contents; }
+  .rd .rd-video { order: 6; }
+  .rd .rd-similar { order: 7; }
+  .rd .rd-video .rv-title { font-size: 20px; }
+}

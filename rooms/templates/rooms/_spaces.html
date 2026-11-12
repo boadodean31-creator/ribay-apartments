@@ -1,0 +1,27 @@
+{% if items or is_site_admin %}
+<section class="rd-spaces" id="{{ sid }}" data-sp aria-labelledby="{{ sid }}-h">
+  <div class="sp-head">
+    <h2 class="sub" id="{{ sid }}-h">{{ heading }}</h2>
+    <div class="sp-right">
+      {% if is_site_admin %}<a class="sp-edit" href="{% url 'manage_room_edit' room.pk %}#spaces">Edit</a>{% endif %}
+      <div class="sp-ctl" hidden>
+        <span class="sp-count" aria-live="polite">1 / 1</span>
+        <button class="sp-btn sp-prev" type="button" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="sp-btn sp-next" type="button" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </div>
+  </div>
+  {% if items %}
+  <div class="sp-track" tabindex="0" aria-label="{{ heading }}">
+    {% for s in items %}
+    <figure class="sp-card">
+      {% if s.image %}<img class="sp-img" src="{{ s.image.url }}" alt="{{ s.title }}" loading="lazy">{% else %}<div class="sp-ph" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="{{ icon_path }}"/></svg></div>{% endif %}
+      <figcaption><h3>{{ s.title }}</h3>{% if s.detail %}<p>{{ s.detail }}</p>{% endif %}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="sp-empty">Nothing here yet. <a href="{% url 'manage_room_edit' room.pk %}#spaces">Add pictures in the room editor</a>. Visitors don't see this section until you do.</p>
+  {% endif %}
+</section>
+{% endif %}

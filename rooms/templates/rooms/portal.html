@@ -1,0 +1,86 @@
+{% extends "rooms/base.html" %}
+{% block title %}My portal · Sampaguita Apartments{% endblock %}
+{% block content %}
+<div class="wrap" style="padding:28px 20px 72px">
+  <a class="crumb" href="{% url 'home' %}">← Back to home</a>
+  <div class="head">
+    <div><h2>Hi, {% firstof user.first_name user.username %}</h2><p>Your room, payments, and receipts in one place.</p></div>
+  </div>
+
+  {% if current %}
+  <div class="stats">
+    <div class="stat"><span class="meta">Your room</span><strong>Room {{ current.room.number }}</strong><span class="meta">{{ current.room.get_floor_display }} · {{ current.room.room_type }}</span></div>
+    <div class="stat"><span class="meta">Monthly rent</span><strong>₱{{ current.room.rent|floatformat:"0g" }}</strong><span class="meta">Moved in {{ current.date_in|date:"M j, Y" }}</span></div>
+    <div class="stat"><span class="meta">Total paid</span><strong>₱{{ total|floatformat:"0g" }}</strong><span class="meta">{{ payments|length }} payment{{ payments|length|pluralize }}</span></div>
+  </div>
+
+  <div class="notes">
+    <div class="addr">
+      <h3 style="font-size:20px">House notes</h3>
+      <ul>
+        <li>Quiet hours start at 10 pm.</li>
+        <li>Laundry area and motorcycle parking are shared. Please keep them tidy.</li>
+        <li>The gate is locked at night. Keep your key with you.</li>
+      </ul>
+    </div>
+    <div class="addr">
+      <h3 style="font-size:20px">Need something fixed?</h3>
+      <p>Leaking faucet, broken light, or a Wi-Fi problem? Let the landlord know and include your room number.</p>
+      <div><button class="btn" type="button" data-toast="Repair requests come in a later step">Report a problem</button></div>
+    </div>
+  </div>
+  {% else %}
+  <div class="welcome">
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22 24 7l18 15"/><path d="M10 19v22h28V19"/><path d="M20 41V29h8v12"/></svg>
+    <div>
+      <h3>Your room isn’t linked yet</h3>
+      <p>Once the landlord links your account to a room, your rent, move-in date, and payments will show here. Message the landlord with the email you signed in with so they can find your account.</p>
+      <a class="btn pri" href="{% url 'home' %}#rooms">Browse rooms</a>
+    </div>
+  </div>
+  {% if open_rooms %}
+  <h2 class="sub" style="font-size:22px;margin-top:36px">Rooms open right now</h2>
+  <div class="grid">
+    {% for r in open_rooms %}
+    <a class="card linkcard" href="{% url 'room_detail' r.number %}">
+      {% with photo=r.photos.all.0 %}{% if photo %}<img src="{{ photo.image.url }}" alt="" loading="lazy">{% else %}<div class="ph"></div>{% endif %}{% endwith %}
+      <div class="body"><div class="row"><h3>Room {{ r.number }}</h3><span class="price">₱{{ r.rent|floatformat:"0g" }}</span></div><div class="meta">{{ r.get_floor_display }} · {{ r.room_type }}</div></div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {% if viewing_requests %}
+  <h2 class="sub" style="font-size:22px;margin-top:36px">Your viewing requests</h2>
+  <div class="ledger"><div class="scroll"><table>
+    <thead><tr><th>Room</th><th>Visit</th><th>Status</th><th>Sent</th></tr></thead>
+    <tbody>
+    {% for v in viewing_requests %}
+      <tr><td>{% if v.room %}<a href="{% url 'room_detail' v.room.number %}">Room {{ v.room_number }}</a>{% else %}Room {{ v.room_number }}{% endif %}</td>
+        <td>{{ v.preferred_date|date:"D, M j" }} · {{ v.get_preferred_slot_display }}</td>
+        <td><span class="vstat {{ v.status }}">{{ v.get_status_display }}</span></td>
+        <td>{{ v.created_at|timesince }} ago</td></tr>
+    {% endfor %}
+    </tbody></table></div></div>
+  <p class="meta" style="margin-top:10px">Questions? Call or text {{ contact_staff }} at <a href="tel:{{ contact_tel }}">{{ contact_phone }}</a>.</p>
+  {% endif %}
+
+  {% if current or payments %}
+  <div class="ledger" style="margin-top:28px">
+    <div class="top"><strong>Payment history</strong>
+      <button class="btn pri" type="button" data-toast="Online payment (GCash, Maya, card) comes in a later step">Pay rent online</button></div>
+    <div class="scroll"><table>
+      <thead><tr><th>Month</th><th>Room</th><th>Amount</th><th>Method</th><th>Reference</th><th>Receipt</th></tr></thead>
+      <tbody>
+      {% for p in payments %}
+        <tr><td>{{ p.month_covered|date:"F Y" }}</td><td>{{ p.tenancy.room.number }}</td><td>₱{{ p.amount|floatformat:"0g" }}</td><td>{{ p.method|default:"—" }}</td><td>{{ p.reference|default:"—" }}</td>
+          <td class="paid">Paid · <a href="{% url 'receipt' p.pk %}">View</a></td></tr>
+      {% empty %}
+        <tr><td colspan="6">No payments recorded yet.</td></tr>
+      {% endfor %}
+      </tbody></table></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

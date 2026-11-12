@@ -1,0 +1,145 @@
+/* "Book a viewing" window. Uses the site's colour variables, so dark mode works too. */
+.bk-hint{margin:8px 0 0;text-align:center;font-size:13px;color:var(--muted)}
+html.bk-lock{overflow:hidden}
+
+dialog.bk{padding:0;border:1px solid var(--line);border-radius:22px;width:min(900px,calc(100vw - 32px));max-width:none;max-height:min(760px,calc(100dvh - 32px));overflow:hidden;background:var(--bg);color:var(--ink);box-shadow:0 40px 90px -30px rgba(0,0,0,.55)}
+dialog.bk[open]{animation:bk-in .42s cubic-bezier(.2,.85,.25,1)}
+dialog.bk.closing{animation:bk-out .26s ease forwards}
+dialog.bk::backdrop{background:rgba(8,18,14,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);animation:bk-fade .3s ease}
+dialog.bk.closing::backdrop{animation:bk-fade .26s ease reverse forwards}
+@keyframes bk-in{from{opacity:0;transform:translateY(26px) scale(.965)}to{opacity:1;transform:none}}
+@keyframes bk-out{to{opacity:0;transform:translateY(14px) scale(.975)}}
+@keyframes bk-fade{from{opacity:0}to{opacity:1}}
+@keyframes bk-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes bk-shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes bk-spin{to{transform:rotate(360deg)}}
+@keyframes bk-draw{to{stroke-dashoffset:0}}
+@keyframes bk-pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@keyframes bk-ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:0 0 0 22px transparent}}
+
+.bk-shell{display:grid;grid-template-columns:320px 1fr;max-height:inherit;position:relative}
+.bk-close{position:absolute;top:12px;right:12px;z-index:3;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);display:grid;place-items:center;padding:0;transition:transform .25s cubic-bezier(.3,1.4,.5,1),background-color .2s}
+.bk-close:hover{transform:rotate(90deg);background:var(--surface)}
+
+/* Left panel */
+.bk-side{max-height:inherit;background:var(--surface);border-right:1px solid var(--line);padding:26px 22px;display:flex;flex-direction:column;gap:22px;overflow:auto}
+.bk-room{display:grid;grid-template-columns:76px 1fr;gap:14px;align-items:center}
+.bk-room img,.bk-noimg{width:76px;height:76px;border-radius:14px;object-fit:cover;background:linear-gradient(135deg,var(--surface),var(--line))}
+.bk-room strong{display:block;font:800 20px "Bricolage Grotesque",sans-serif}
+.bk-room span{display:block;color:var(--muted);font-size:14px}
+.bk-room b{font:700 17px "Bricolage Grotesque",sans-serif}
+.bk-room small{font:400 12px "Instrument Sans",sans-serif;color:var(--muted)}
+.bk-label{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:6px}
+.bk-contact{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:16px}
+.bk-person{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.bk-person strong{display:block;line-height:1.2;font:800 19px "Bricolage Grotesque",sans-serif}
+.bk-person span{font-size:14px;color:var(--muted)}
+.bk-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:800 16px "Bricolage Grotesque",sans-serif;font-style:normal;flex:none;animation:bk-ring 2.4s ease-out infinite}
+.bk-contact{container-type:inline-size}
+.bk-num{display:flex;align-items:center;gap:8px;min-width:0;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--accent) 12%,var(--bg));border:1.5px solid var(--accent);color:var(--accent);font:800 clamp(15px,calc(11.5cqi - 7px),24px)/1.1 "Bricolage Grotesque",sans-serif;letter-spacing:0;text-decoration:none;white-space:nowrap;transition:background-color .2s,transform .2s}
+.bk-num svg{flex:none;width:22px;height:22px}
+.bk-num span{min-width:0}
+.bk-num:hover{background:color-mix(in srgb,var(--accent) 20%,var(--bg))}
+.bk-num:active{transform:scale(.98)}
+.bk-btns{display:flex;gap:8px;flex-wrap:wrap}
+.bk-btns.center{justify-content:center}
+.bk-btns .btn{text-decoration:none;display:inline-block}
+.bk-hours{margin:14px 0 0;font-size:14px}
+.bk-steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;color:var(--muted);font-size:14px}
+.bk-steps li{display:flex;gap:12px;align-items:center}
+.bk-steps b{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-size:13px}
+
+/* Right panel */
+.bk-main{padding:30px 32px 28px;overflow:auto;max-height:inherit}
+.bk-head h2{font-size:30px;margin:0 0 6px;padding-right:40px}
+.bk-head p{margin:0 0 20px;color:var(--muted)}
+.bk-field{margin:0 0 16px;border:0;padding:0;min-width:0}
+.bk-field label,.bk-field legend{display:block;font-weight:600;font-size:14px;margin-bottom:6px;padding:0}
+.bk-field em{font-weight:400;color:var(--muted);font-style:normal}
+.bk-field input[type=text],.bk-field input[type=tel],.bk-field input[type=email],.bk-field input[type=date],.bk-field textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font:inherit;transition:border-color .2s,box-shadow .2s}
+.bk-field textarea{resize:vertical;min-height:64px}
+.bk-field input:focus,.bk-field textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
+.bk-field.bad input,.bk-field.bad textarea{border-color:var(--busy)}
+.bk-err{display:block;color:var(--busy);font-size:13px;margin-top:5px;min-height:0}
+.bk-err:empty{display:none}
+.bk-err:not(:empty){animation:bk-shake .4s}
+
+.bk-days{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin:0 -2px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.bk-day{flex:none;scroll-snap-align:start;min-width:62px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:8px 6px;text-align:center;line-height:1.25;transition:transform .2s cubic-bezier(.3,1.4,.5,1),border-color .2s,background-color .2s,color .2s}
+.bk-day small{display:block;font-size:12px;color:var(--muted)}
+.bk-day b{display:block;font:800 19px "Bricolage Grotesque",sans-serif}
+.bk-day:hover{border-color:var(--accent);transform:translateY(-2px)}
+.bk-day[aria-checked="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);transform:translateY(-2px)}
+.bk-day[aria-checked="true"] small{color:inherit;opacity:.85}
+.bk-or{margin:6px 0 6px;font-weight:400!important;color:var(--muted);font-size:13px!important}
+
+.bk-slots{display:grid;gap:8px}
+.bk-slot{position:relative;display:block;margin:0!important;cursor:pointer}
+.bk-slot input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.bk-slot span{display:block;padding:11px 14px 11px 42px;border:1.5px solid var(--line);border-radius:12px;font-weight:500;position:relative;transition:border-color .2s,background-color .2s}
+.bk-slot span::before{content:"";position:absolute;left:14px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;border:2px solid var(--line);transition:all .2s}
+.bk-slot:hover span{border-color:var(--accent)}
+.bk-slot input:checked+span{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
+.bk-slot input:checked+span::before{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bg)}
+.bk-slot input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
+
+.bk-error{margin:0 0 14px;padding:11px 14px;border-radius:12px;border:1px solid var(--busy);background:color-mix(in srgb,var(--busy) 10%,var(--bg));color:var(--ink);font-weight:500;animation:bk-shake .4s}
+.bk-submit{position:relative;padding:14px 20px;font-size:17px;border-radius:14px;display:flex;justify-content:center;align-items:center;gap:10px}
+.bk-spin{display:none;width:18px;height:18px;border-radius:50%;border:2.5px solid color-mix(in srgb,var(--accent-ink) 35%,transparent);border-top-color:var(--accent-ink);animation:bk-spin .7s linear infinite}
+.bk-submit[aria-busy="true"]{opacity:.85;cursor:progress}
+.bk-submit[aria-busy="true"] .bk-spin{display:inline-block}
+.bk-fine{margin:12px 0 0;text-align:center;font-size:13px;color:var(--muted)}
+.bk-small{font-size:14px;color:var(--muted)}
+
+/* Fields slide in one after another when the window opens */
+dialog.bk[open] .bk-head,dialog.bk[open] .bk-main form>.bk-field,dialog.bk[open] .bk-submit,dialog.bk[open] .bk-fine{animation:bk-rise .5s cubic-bezier(.2,.8,.2,1) backwards}
+dialog.bk[open] .bk-head{animation-delay:.12s}
+dialog.bk[open] .bk-main form>.bk-field{animation-delay:calc(var(--d,0)*55ms + 170ms)}
+dialog.bk[open] .bk-submit{animation-delay:.42s}
+dialog.bk[open] .bk-side>*{animation:bk-rise .55s cubic-bezier(.2,.8,.2,1) backwards}
+dialog.bk[open] .bk-side>*:nth-child(2){animation-delay:.1s}
+dialog.bk[open] .bk-side>*:nth-child(3){animation-delay:.2s}
+
+/* Success view */
+.bk-done,.bk-login{text-align:center;padding:30px 8px 8px;display:grid;justify-items:center;gap:6px}
+.bk-done:not([hidden]){animation:bk-rise .5s cubic-bezier(.2,.8,.2,1)}
+.bk-done h2,.bk-login h2{font-size:32px;margin:12px 0 4px}
+.bk-done p,.bk-login p{margin:0 0 8px;max-width:44ch;color:var(--muted)}
+.bk-check{width:84px;height:84px;border-radius:50%;animation:bk-pop .6s cubic-bezier(.2,.9,.3,1.2) .05s backwards,bk-ring 1.6s ease-out .5s 2}
+.bk-check circle{fill:color-mix(in srgb,var(--accent) 14%,var(--bg));stroke:var(--accent);stroke-width:2.5}
+.bk-check path{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:46;stroke-dashoffset:46;animation:bk-draw .5s ease .35s forwards}
+.bk-sum{margin:10px 0 6px;width:min(380px,100%);border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:6px 16px;text-align:left}
+.bk-sum div{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-top:1px solid var(--line)}
+.bk-sum div:first-child{border-top:0}
+.bk-sum dt{color:var(--muted)}
+.bk-sum dd{margin:0;font-weight:600;text-align:right}
+.bk-login svg{width:64px;height:64px;color:var(--accent);animation:bk-pop .6s cubic-bezier(.2,.9,.3,1.2) backwards}
+.bk-login .btn{margin-top:8px;text-decoration:none;text-align:center;display:block;max-width:360px}
+
+/* Phones and small tablets: the window slides up from the bottom like a sheet */
+@media (max-width:760px){
+  dialog.bk{width:100%;max-width:100%;margin:auto 0 0;border-radius:22px 22px 0 0;max-height:94dvh;border-bottom:0}
+  dialog.bk[open]{animation:bk-sheet .42s cubic-bezier(.2,.85,.25,1)}
+  dialog.bk.closing{animation:bk-sheet-out .26s ease forwards}
+  .bk-shell{grid-template-columns:1fr;overflow:auto;max-height:94dvh}
+  .bk-side{border-right:0;border-bottom:1px solid var(--line);padding:18px 18px 16px;gap:14px;overflow:visible;max-height:none}
+  .bk-room{padding-right:40px}
+  .bk-steps{display:none}
+  .bk-room{grid-template-columns:56px 1fr}
+  .bk-room img,.bk-noimg{width:56px;height:56px;border-radius:12px}
+  .bk-contact{padding:14px}
+  .bk-main{padding:22px 18px 26px;overflow:visible;max-height:none}
+  .bk-head h2{font-size:26px}
+  .bk-close{top:10px;right:10px}
+  .bk-field input[type=text],.bk-field input[type=tel],.bk-field input[type=email],.bk-field input[type=date],.bk-field textarea{font-size:16px} /* stops iPhone zooming in */
+}
+@keyframes bk-sheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes bk-sheet-out{to{transform:translateY(100%)}}
+@media (min-width:761px) and (max-width:980px){.bk-shell{grid-template-columns:260px 1fr}.bk-main{padding:26px 24px}}
+@media (prefers-reduced-motion:reduce){
+  dialog.bk[open],dialog.bk.closing,dialog.bk::backdrop,.bk-check,.bk-check path{animation:none!important}
+  .bk-check path{stroke-dashoffset:0}
+}
+
+/* "hidden" must always win, so the success message stays hidden until the request is sent */
+dialog.bk [hidden]{display:none!important}

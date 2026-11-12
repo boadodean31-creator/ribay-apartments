@@ -1,0 +1,21 @@
+{% extends "rooms/base.html" %}
+{% block title %}Receipt SA-{{ p.pk|stringformat:"05d" }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding:40px 20px 72px;max-width:640px">
+  <a class="crumb noprint" href="{% url 'portal' %}">← Back to my portal</a>
+  <div class="receipt">
+    <div class="row"><h1>Payment receipt</h1><strong>SA-{{ p.pk|stringformat:"05d" }}</strong></div>
+    <p class="meta">Sampaguita Apartments</p>
+    <dl>
+      <dt>Received from</dt><dd>{% firstof p.tenancy.tenant.get_full_name p.tenancy.tenant.username %}</dd>
+      <dt>Room</dt><dd>Room {{ p.tenancy.room.number }} · {{ p.tenancy.room.get_floor_display }}</dd>
+      <dt>For the month of</dt><dd>{{ p.month_covered|date:"F Y" }}</dd>
+      <dt>Date paid</dt><dd>{{ p.paid_on|date:"F j, Y" }}</dd>
+      <dt>Method</dt><dd>{{ p.method|default:"—" }}</dd>
+      <dt>Reference</dt><dd>{{ p.reference|default:"—" }}</dd>
+    </dl>
+    <div class="row total"><span>Amount paid</span><strong>₱{{ p.amount|floatformat:"2g" }}</strong></div>
+  </div>
+  <button class="btn pri noprint" type="button" onclick="window.print()" style="margin-top:18px">Print or save as PDF</button>
+</div>
+{% endblock %}

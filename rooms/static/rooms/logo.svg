@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="Ribay Apartments">
+  <defs>
+    <linearGradient id="rb-bg" x1="6" y1="0" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10936B"/>
+      <stop offset="1" stop-color="#054A38"/>
+    </linearGradient>
+    <linearGradient id="rb-win" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFD25A"/>
+      <stop offset="1" stop-color="#F4902A"/>
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="11" fill="url(#rb-bg)"/>
+  <rect x=".5" y=".5" width="39" height="39" rx="10.5" fill="none" stroke="#fff" stroke-opacity=".12"/>
+  <!-- the lit window: fills the opening of the R -->
+  <path d="M15.4 13.2h5.9a3.4 3.4 0 0 1 0 6.8h-5.9z" fill="url(#rb-win)"/>
+  <!-- R: stem + bowl as one stroke, leg as a second stroke -->
+  <path d="M13.3 30.5V11.1h8a5.5 5.5 0 0 1 0 11H13.3" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20.6 22.6 27.2 30.5" fill="none" stroke="#fff" stroke-width="4.2" stroke-linecap="round"/>
+</svg>

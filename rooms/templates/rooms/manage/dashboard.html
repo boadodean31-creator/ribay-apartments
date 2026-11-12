@@ -1,0 +1,47 @@
+{% extends "rooms/manage/base.html" %}
+{% block title %}Manage rooms · Ribay Apartments{% endblock %}
+{% block heading %}Rooms{% endblock %}
+{% block actions %}<a class="btn pri" href="{% url 'manage_room_new' %}">+ Add room</a>{% endblock %}
+{% block body %}
+{% if new_requests %}
+<a class="m-alert" href="{% url 'manage_requests' %}?status=new">
+  <span class="m-alert-ico" aria-hidden="true">🔔</span>
+  <span><strong>{{ new_requests }} new viewing request{{ new_requests|pluralize }}</strong><br><span class="m-muted">People are waiting to hear from you. Tap to open.</span></span>
+  <span class="m-alert-go" aria-hidden="true">→</span>
+</a>
+{% endif %}
+<div class="m-stats">
+  <div class="m-stat"><b>{{ total }}</b><span>Total rooms</span></div>
+  <div class="m-stat"><b>{{ available }}</b><span>Available</span></div>
+  <div class="m-stat"><b>{{ occupied }}</b><span>Occupied</span></div>
+</div>
+
+{% for g in groups %}
+<section class="m-floor">
+  <div class="m-floorhead">
+    <h2>{{ g.name }} <small>{{ g.rooms|length }} room{{ g.rooms|length|pluralize }}</small></h2>
+    <a class="btn sm" href="{% url 'manage_room_new' %}?floor={{ g.number }}">+ Add room here</a>
+  </div>
+  <div class="m-list">
+    {% for r in g.rooms %}
+    <div class="m-row">
+      {% with photo=r.photos.all.0 %}{% if photo %}<img class="m-thumb" src="{{ photo.image.url }}" alt="">{% else %}<div class="m-thumb"></div>{% endif %}{% endwith %}
+      <div class="m-main">
+        <strong>Room {{ r.number }}</strong>
+        <span class="m-muted">{{ r.room_type }} · ₱{{ r.rent|floatformat:"0g" }} / month · {{ r.photos.all|length }} photo{{ r.photos.all|length|pluralize }}</span>
+      </div>
+      <span class="badge {% if r.status != 'available' %}busy{% endif %}">{{ r.get_status_display }}</span>
+      <div class="m-btns">
+        <form method="post" action="{% url 'manage_room_status' r.pk %}">{% csrf_token %}
+          <button class="btn sm" type="submit">{% if r.status == 'available' %}Mark occupied{% else %}Mark available{% endif %}</button>
+        </form>
+        <a class="btn sm pri" href="{% url 'manage_room_edit' r.pk %}">Edit</a>
+      </div>
+    </div>
+    {% empty %}<div class="m-empty">No rooms on this floor yet.</div>{% endfor %}
+  </div>
+</section>
+{% empty %}
+<div class="m-empty big">No floors or rooms yet. <a href="{% url 'manage_floors' %}">Add a floor</a> first, then add rooms.</div>
+{% endfor %}
+{% endblock %}

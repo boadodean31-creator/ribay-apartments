@@ -1,0 +1,106 @@
+{% extends "rooms/manage/base.html" %}
+{% block title %}{% if room %}Edit Room {{ room.number }}{% else %}Add room{% endif %} · Ribay Apartments{% endblock %}
+{% block heading %}{% if room %}Edit Room {{ room.number }}{% else %}Add a room{% endif %}{% endblock %}
+{% block subheading %}<a href="{% url 'manage_home' %}">← Back to all rooms</a>{% endblock %}
+{% block actions %}{% if room %}<a class="btn sm" href="{% url 'room_detail' room.number %}" target="_blank" rel="noopener">View on website ↗</a>{% endif %}{% endblock %}
+{% block body %}
+<div class="m-cols">
+  <form class="m-card" method="post" enctype="multipart/form-data" id="roomform">{% csrf_token %}
+    <h2>Room details</h2>
+    {% for e in form.non_field_errors %}<p class="m-err">{{ e }}</p>{% endfor %}
+    <div class="m-grid2">
+      {% include "rooms/manage/_field.html" with f=form.number %}
+      {% include "rooms/manage/_field.html" with f=form.floor %}
+      {% include "rooms/manage/_field.html" with f=form.room_type %}
+      {% include "rooms/manage/_field.html" with f=form.rent %}
+      {% include "rooms/manage/_field.html" with f=form.status %}
+      {% include "rooms/manage/_field.html" with f=form.video_url %}
+      {% include "rooms/manage/_field.html" with f=form.features %}
+    </div>
+
+    <div class="m-field">
+      <label for="photos">{% if room %}Add more photos{% else %}Photos{% endif %}</label>
+      <input id="photos" type="file" name="photos" accept="image/*" multiple>
+      <small>You can pick several at once. JPG or PNG, up to 8 MB each.</small>
+      <div class="m-preview" id="preview"></div>
+    </div>
+
+    <div class="m-save">
+      <button class="btn pri" type="submit">{% if room %}Save changes{% else %}Add room{% endif %}</button>
+      <a class="btn" href="{% url 'manage_home' %}">Cancel</a>
+    </div>
+  </form>
+
+  <div>
+    <div class="m-card">
+      <h2>Photos {% if photos %}<small>{{ photos|length }}</small>{% endif %}</h2>
+      {% if not room %}
+        <p class="m-muted">Choose photos on the left and they will be saved with the room. You can reorder or replace them afterwards.</p>
+      {% elif not photos %}
+        <p class="m-muted">No photos yet. Use “Add more photos” on the left.</p>
+      {% else %}
+        <p class="m-muted">The first photo is the cover shown on the website.</p>
+        <div class="m-photos">
+          {% for p in photos %}
+          <figure class="m-photo">
+            <img src="{{ p.image.url }}" alt="Photo {{ forloop.counter }}">
+            {% if forloop.first %}<span class="m-cover">Cover</span>{% endif %}
+            <figcaption>
+              {% if not forloop.first %}
+              <form method="post" action="{% url 'manage_photo_cover' p.pk %}">{% csrf_token %}<button class="btn sm" type="submit">Make cover</button></form>
+              {% endif %}
+              <form method="post" action="{% url 'manage_photo_replace' p.pk %}" enctype="multipart/form-data">{% csrf_token %}
+                <label class="btn sm">Replace<input type="file" name="image" accept="image/*" hidden onchange="this.form.submit()"></label>
+              </form>
+              <form method="post" action="{% url 'manage_photo_delete' p.pk %}" onsubmit="return confirm('Delete this photo?')">{% csrf_token %}<button class="btn sm danger" type="submit">Delete</button></form>
+            </figcaption>
+          </figure>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if room %}
+    <div class="m-card" id="spaces">
+      <h2>Where you’ll sleep and restroom</h2>
+      <p class="m-muted">Shown near the bottom of this room’s page. Add a picture and a short description for each bedroom or bathroom.</p>
+      {% for kind, label, hint, items in space_groups %}
+      <h3 class="m-sp-h">{{ label }}</h3>
+      {% for s in items %}
+      <form class="m-sp" method="post" action="{% url 'manage_space_save' s.pk %}" enctype="multipart/form-data">{% csrf_token %}
+        <div class="m-sp-img">{% if s.image %}<img src="{{ s.image.url }}" alt="{{ s.title }}">{% else %}<span>No picture</span>{% endif %}</div>
+        <div class="m-sp-body">
+          <input type="text" name="title" value="{{ s.title }}" maxlength="60" required aria-label="Title">
+          <input type="text" name="detail" value="{{ s.detail }}" maxlength="120" placeholder="Short description, e.g. 1 queen bed" aria-label="Description">
+          <input type="file" name="image" accept="image/*" aria-label="Replace the picture">
+          {% if photos %}<div class="m-sp-pick"><span>Or use one of this room’s photos:</span><div>{% for p in photos %}<label><input type="radio" name="photo" value="{{ p.pk }}"><img src="{{ p.image.url }}" alt="Photo {{ forloop.counter }}"></label>{% endfor %}</div></div>{% endif %}
+                    <div class="m-sp-btns"><button class="btn pri sm" type="submit">Save</button><button class="btn sm danger" type="submit" form="spdel{{ s.pk }}">Delete</button></div>
+        </div>
+      </form>
+      <form id="spdel{{ s.pk }}" method="post" action="{% url 'manage_space_delete' s.pk %}" onsubmit="return confirm('Remove this from the room page?')">{% csrf_token %}</form>
+      {% endfor %}
+      <form class="m-sp m-sp-new" method="post" action="{% url 'manage_space_add' room.pk %}" enctype="multipart/form-data">{% csrf_token %}
+        <input type="hidden" name="kind" value="{{ kind }}">
+        <div class="m-sp-body">
+          <strong>Add to “{{ label }}”</strong>
+          <input type="text" name="title" maxlength="60" placeholder="Title, {{ hint }}" required aria-label="Title">
+          <input type="text" name="detail" maxlength="120" placeholder="Short description (optional)" aria-label="Description">
+          <input type="file" name="image" accept="image/*" aria-label="Picture">
+          {% if photos %}<div class="m-sp-pick"><span>Or use one of this room’s photos:</span><div>{% for p in photos %}<label><input type="radio" name="photo" value="{{ p.pk }}"><img src="{{ p.image.url }}" alt="Photo {{ forloop.counter }}"></label>{% endfor %}</div></div>{% endif %}
+                    <div class="m-sp-btns"><button class="btn sm" type="submit">Add</button></div>
+        </div>
+      </form>
+      {% endfor %}
+    </div>
+
+    <div class="m-card m-danger">
+      <h2>Delete this room</h2>
+      <p class="m-muted">Removes the room and its photos from the website. Rooms with tenant or payment records can't be deleted.</p>
+      <form method="post" action="{% url 'manage_room_delete' room.pk %}" onsubmit="return confirm('Delete Room {{ room.number }} and all its photos? This cannot be undone.')">{% csrf_token %}
+        <button class="btn danger" type="submit">Delete Room {{ room.number }}</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
